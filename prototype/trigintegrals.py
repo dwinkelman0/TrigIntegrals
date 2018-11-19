@@ -88,12 +88,20 @@ class Integral(object):
         elif self.a == 1:
             # integral {k sin(nx) (cos(nx))^b dx}
             #  => -k/n/(b+1) (cos(nx))^(b+1)
+
+            # Mathematical principle: u-substitution
+            #  u = cos(nx); du = -sin(nx) dx
+            # Works on all cases, including b = 0
             k_coeff = -self.k / self.n * fractions.Fraction(1, self.b + 1)
             return TrigString(0, self.b + 1, k_coeff, self.n)
 
         elif self.b == 1:
             # integral {k (sin(nx))^a cos(nx) dx}
             #  => k/n/(a+1) (sin(nx))^(a+1)
+
+            # Mathematical principle: u-substitution
+            #  u = sin(nx); du = cos(nx) dx
+            # Works on all cases, including a = 0
             k_coeff = self.k / self.n * fractions.Fraction(1, self.a + 1)
             return TrigString(self.a + 1, 0, k_coeff, self.n)
 
@@ -101,6 +109,10 @@ class Integral(object):
             # integral {k (cos(nx))^b dx}
             #  => k/n/b sin(nx) (cos(nx))^(b-1) + 
             #     integral {k (b-1)/b (cos(nx))^(b-2) dx}
+
+            # Mathematical principle: integration by parts
+            #  u = (cos(nx))^(b-1); dv = cos(nx) dx
+            # Creates another integral of the same form with a lower exponent
             
             # Integration by parts: uv
             uv_k_coeff = self.k / self.n * fractions.Fraction(1, self.b)
@@ -120,6 +132,10 @@ class Integral(object):
             # integral {k (sin(nx))^a dx}
             #  => -k/n/a cos(nx) (sin(nx))^(a-1) + 
             #     integral {k (a-1)/a (sin(nx))^(a-2) dx}
+
+            # Mathematical principle: integration by parts
+            #  u = (sin(nx))^(a-1); dv = sin(nx) dx
+            # Creates another integral of the same form with a lower exponent
             
             # Integration by parts: uv
             uv_k_coeff = -self.k / self.n * fractions.Fraction(1, self.a)
@@ -140,6 +156,12 @@ class Integral(object):
             #  => integral {k (1/2 sin(2nx))^a (1/2 + 1/2 cos(2nx))^((b - a)/2) dx}, b > a
             #  => integral {k (1/2 sin(2nx))^b (1/2 - 1/2 cos(2nx))^((a - b)/2) dx}, a > b
             #  => integral {k (1/2 sin(2nx))^a dx}, a = b
+
+            # Mathematical principle: double-angle identities
+            #  sin(nx) cos(nx) = 1/2 sin(2nx)
+            #  (sin(nx))^2 = 1/2 - 1/2 cos(2nx)
+            #  (cos(nx))^2 = 1/2 + 1/2 cos(2nx)
+            # Creates a binomial expansion of integrals of (cos(2nx))^b terms multiplied against a (sin(2nx))^a term
 
             # Get the sine term
             sin_exp = min(self.a, self.b)
@@ -177,6 +199,11 @@ class Integral(object):
         elif self.a % 2 == 0 and self.b % 2 == 1:
             # integral {k (sin(nx))^a (cos(nx))^b dx}, a is even and b is odd
             #  => integral {k (cos(nx))^b (1 - (cos(nx))^2)^(a/2) dx}
+
+            # Mathematical principle: Pythagorean identity
+            #  (sin(nx))^2 + (cos(nx))^2 = 1
+            # Creates a binomial expansion of integrals of (cos(nx))^b terms
+
             cos_exp = int(self.a / 2)
             bin_k = [fractions.Fraction(math.factorial(cos_exp), math.factorial(r) * math.factorial(cos_exp - r)) for r in range(0, cos_exp + 1)]
             cos_k = [bin_k[n] * (-1)**n for n in range(0, cos_exp + 1)]
@@ -195,6 +222,11 @@ class Integral(object):
         elif self.a % 2 == 1 and self.b % 2 == 0:
             # integral {k (sin(nx))^a (cos(nx))^b dx}, a is odd and b is even
             #  => integral {k (sin(nx))^a (1 - (sin(nx))^2)^(b/2) dx}
+
+            # Mathematical principle: Pythagorean identity
+            #  (sin(nx))^2 + (cos(nx))^2 = 1
+            # Creates a binomial expansion of integrals of (cos(nx))^b terms
+
             sin_exp = int(self.b / 2)
             bin_k = [fractions.Fraction(math.factorial(sin_exp), math.factorial(r) * math.factorial(sin_exp - r)) for r in range(0, sin_exp + 1)]
             sin_k = [bin_k[n] * (-1)**n for n in range(0, sin_exp + 1)]
@@ -216,5 +248,5 @@ class Integral(object):
         else:
             return str(self)
 
-const = Integral(3, 7, 1, 5)
+const = Integral(1, 0, 1, 5)
 print(const.Eval())
